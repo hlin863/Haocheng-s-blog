@@ -43,9 +43,39 @@ main {
 }
 
 .reading_list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 30px;
+    display: flex;              /* Use flex for layout */
+    overflow-x: auto;           /* Allow horizontal scroll */
+    gap: 20px;                  /* Space between cards */
+    padding: 20px 0;
+    scroll-snap-type: x mandatory;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.reading_list::-webkit-scrollbar {
+    display: none;
+}
+
+.reading_list h2 {
+    margin-left: 10px;
+}
+
+.reading_list article {
+    display: inline-block;
+    vertical-align: top;
+    width: 250px;
+    margin-right: 20px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    scroll-snap-align: start;
+}
+
+.reading_list img {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 10px;
 }
 
 article {
