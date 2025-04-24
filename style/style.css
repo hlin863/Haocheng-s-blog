@@ -109,3 +109,17 @@ article small {
     color: #999;
     font-size: 0.8rem;
 }
+
+.star-rating span {
+    font-size: 1.5rem;
+    color: gold;
+    cursor: pointer;
+}
+
+.star-rating span.filled::before {
+    content: '★';
+}
+
+.star-rating span::before {
+    content: '☆';
+}
