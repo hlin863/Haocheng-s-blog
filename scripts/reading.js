@@ -1,4 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
+    const addBtn = document.querySelector('.button_panel button');
+    if (addBtn) {
+        console.log('✅ Button found and binding click handler');
+        addBtn.addEventListener('click', addBook);
+    } else {
+        console.error('❌ Button not found in DOM');
+    }
+    
     fetch('data/reading_list.json')
         .then(response => response.json())
         .then(data => {
@@ -43,3 +51,26 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
+function addBook() {
+    const input = document.getElementById('bookInput');
+    const bookName = input.value.trim();
+
+    console.log('📚 Book entered:', bookName); // Debug log
+
+    if (!bookName) return;
+
+    const list = document.getElementById('bookList');
+    const item = document.createElement('li');
+    item.textContent = bookName;
+
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = "Retirer";
+    removeBtn.style.marginLeft = "10px";
+    removeBtn.onclick = () => list.removeChild(item);
+
+    item.appendChild(removeBtn);
+    list.appendChild(item);
+
+    input.value = '';
+}
