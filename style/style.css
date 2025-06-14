@@ -47,19 +47,28 @@ body {
     background-color: #45a049;
 }
 
-/* put near the end of style.css */
-.remove-btn{
-    display:block;          /* makes margin auto work */
-    margin:15px auto 0;     /* top gap then auto-centre horizontally */
-    padding:8px 16px;
-    background:#e74c3c;
-    color:#fff;
-    border:none;
-    border-radius:8px;
-    font-size:14px;
-    cursor:pointer;
-    transition:background 0.3s ease, transform 0.1s ease;
+.remove-btn {
+    margin-top: auto;         /* pushes to bottom of article */
+    align-self: center;       /* centres button horizontally */
+    padding: 8px 16px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.1s ease;
 }
+
+.remove-btn:hover {
+    background-color: #c0392b;
+    transform: scale(1.03);
+}
+
+.remove-btn:active {
+    transform: scale(0.97);
+}
+
 
 .remove-btn:hover {
     background-color: #c0392b;
@@ -125,8 +134,9 @@ main {
 }
 
 .reading_list article {
-    display: inline-block;
-    vertical-align: top;
+    display: flex;               /* 🔁 CHANGED from inline-block to flex */
+    flex-direction: column;      /* Stack items vertically */
+    justify-content: flex-start;
     width: 250px;
     margin-right: 20px;
     background: #fff;
