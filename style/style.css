@@ -47,6 +47,29 @@ body {
     background-color: #45a049;
 }
 
+/* put near the end of style.css */
+.remove-btn{
+    display:block;          /* makes margin auto work */
+    margin:15px auto 0;     /* top gap then auto-centre horizontally */
+    padding:8px 16px;
+    background:#e74c3c;
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    font-size:14px;
+    cursor:pointer;
+    transition:background 0.3s ease, transform 0.1s ease;
+}
+
+.remove-btn:hover {
+    background-color: #c0392b;
+    transform: scale(1.03);
+}
+
+.remove-btn:active {
+    transform: scale(0.97);
+}
+
 header {
     display: flex;
     justify-content: space-between;

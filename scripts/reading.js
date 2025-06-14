@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     </div>
                     <p>${book.description}</p>
                     <small>${book.date}</small>
+                    <button type="button" class="remove-btn">Retirer</button>
                 `;
                 section.appendChild(article);
             });
