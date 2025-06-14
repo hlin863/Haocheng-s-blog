@@ -53,24 +53,34 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function addBook() {
-    const input = document.getElementById('bookInput');
-    const bookName = input.value.trim();
+    /* Grab the user’s data.   
+       In the simplest case we still have one input for the title,
+       but you can expand this block to pull an image-URL field,
+       a synopsis <textarea>, a rating slider, etc. */
+    // 1 - get input
+    const input     = document.getElementById('bookInput');
+    const bookTitle = input.value.trim();
+    if (!bookTitle) return;               // nothing typed
 
-    console.log('📚 Book entered:', bookName); // Debug log
+    // 2 - find the <section class="reading_list">
+    const listSection = document.querySelector('.reading_list');
 
-    if (!bookName) return;
+    // 3 - build the <article>
+    const article = document.createElement('article');
 
-    const list = document.getElementById('bookList');
-    const item = document.createElement('li');
-    item.textContent = bookName;
+    const h3 = document.createElement('h3');
+    h3.textContent = bookTitle;
+    article.appendChild(h3);
 
     const removeBtn = document.createElement('button');
-    removeBtn.textContent = "Retirer";
-    removeBtn.style.marginLeft = "10px";
-    removeBtn.onclick = () => list.removeChild(item);
+    removeBtn.textContent = 'Retirer';
+    removeBtn.style.marginLeft = '10px';
+    removeBtn.addEventListener('click', () => article.remove());
+    article.appendChild(removeBtn);
 
-    item.appendChild(removeBtn);
-    list.appendChild(item);
+    // 4 - add the new entry to the page
+    listSection.appendChild(article);
 
+    // 5 - reset the form
     input.value = '';
 }
