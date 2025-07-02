@@ -36,7 +36,33 @@
         </section>
 
         <section class="button_panel">
-            <input type="text" id="bookInput" placeholder="Entrez le nom du livre">
+            <!-- Upload Book Cover -->
+            <label for="bookCover">Télécharger la couverture du livre:</label>
+            <input type="file" id="bookCover" accept="image/*"><br><br>
+
+            <!-- Book Name -->
+            <label for="bookInput">Nom du livre:</label>
+            <input type="text" id="bookInput" placeholder="Entrez le nom du livre"><br><br>
+
+            <!-- Description -->
+            <label for="bookDescription">Description:</label>
+            <textarea id="bookDescription" placeholder="Entrez une description du livre"></textarea><br><br>
+
+            <!-- Star Rating -->
+            <label for="bookRating">Note:</label>
+            <select id="bookRating">
+                <option value="5">★★★★★</option>
+                <option value="4">★★★★☆</option>
+                <option value="3">★★★☆☆</option>
+                <option value="2">★★☆☆☆</option>
+                <option value="1">★☆☆☆☆</option>
+            </select><br><br>
+
+            <!-- Read Date -->
+            <label for="readDate">Date de lecture:</label>
+            <input type="date" id="readDate"><br><br>
+
+            <!-- Submit Button -->
             <button>Ajouter</button>
         </section>
         
