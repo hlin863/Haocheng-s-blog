@@ -54,34 +54,80 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function addBook() {
-    /* Grab the user’s data.   
-       In the simplest case we still have one input for the title,
-       but you can expand this block to pull an image-URL field,
-       a synopsis <textarea>, a rating slider, etc. */
-    // 1 - get input
-    const input     = document.getElementById('bookInput');
-    const bookTitle = input.value.trim();
-    if (!bookTitle) return;               // nothing typed
+    const title = document.getElementById('bookInput').value.trim();
+    const description = document.getElementById('bookDescription').value.trim();
+    const rating = parseInt(document.getElementById('bookRating').value);
+    const date = document.getElementById('readDate').value;
+    const coverInput = document.getElementById('bookCover');
+    const coverFile = coverInput.files[0];
 
-    // 2 - find the <section class="reading_list">
+    if (!title) return;
+
     const listSection = document.querySelector('.reading_list');
-
-    // 3 - build the <article>
     const article = document.createElement('article');
 
+    // Title element
     const h3 = document.createElement('h3');
-    h3.textContent = bookTitle;
+    h3.textContent = title;
+
+    // Image element
+    if (coverFile) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.alt = title;
+            article.insertBefore(img, article.firstChild);
+        };
+        reader.readAsDataURL(coverFile);
+    }
+
+    // Star rating
+    const starDiv = document.createElement('div');
+    starDiv.classList.add('star-rating');
+    starDiv.setAttribute('data-rating', rating);
+
+    for (let i = 0; i < 5; i++) {
+        const span = document.createElement('span');
+        if (i < rating) span.classList.add('filled');
+        starDiv.appendChild(span);
+    }
+
+    // Description
+    const desc = document.createElement('p');
+    desc.textContent = description;
+
+    // Read date
+    const dateElem = document.createElement('small');
+    if (date) {
+        const formattedDate = new Date(date).toLocaleDateString('fr-FR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        dateElem.textContent = formattedDate;
+    }
+
+    // Remove button
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.classList.add('remove-btn');
+    btn.textContent = 'Retirer';
+    btn.addEventListener('click', () => article.remove());
+
+    // Append all
     article.appendChild(h3);
+    article.appendChild(starDiv);
+    article.appendChild(desc);
+    article.appendChild(dateElem);
+    article.appendChild(btn);
 
-    const removeBtn = document.createElement('button');
-    removeBtn.textContent = 'Retirer';
-    removeBtn.style.marginLeft = '10px';
-    removeBtn.addEventListener('click', () => article.remove());
-    article.appendChild(removeBtn);
-
-    // 4 - add the new entry to the page
     listSection.appendChild(article);
 
-    // 5 - reset the form
-    input.value = '';
+    // Reset form
+    document.getElementById('bookInput').value = '';
+    document.getElementById('bookDescription').value = '';
+    document.getElementById('bookRating').value = '5';
+    document.getElementById('readDate').value = '';
+    document.getElementById('bookCover').value = '';
 }
