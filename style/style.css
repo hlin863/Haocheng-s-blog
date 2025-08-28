@@ -227,3 +227,9 @@ article small {
 .star-rating span::before {
     content: '☆';
 }
+
+.posts { max-width: 960px; margin: 0 auto; padding: 0 1rem; }
+.post { background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,.08); padding: 1.25rem 1.5rem; margin: 1rem 0; }
+.post .meta { color: #6b7280; font-size: .9rem; margin: .25rem 0 1rem; }
+.post-image img { width: 100%; display: block; border-radius: 12px; margin: .5rem 0 1rem; }
+.tag { display:inline-block; padding:.15rem .5rem; border-radius:999px; background:#eef2ff; font-size:.75rem; margin-right:.35rem; }
