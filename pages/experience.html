@@ -127,6 +127,28 @@
     </main>
 
     <script>
+    // French month labels
+    const MOIS_FR = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+
+    function fmtMonthYear(dStr){
+        const d = new Date(dStr);
+        return `${MOIS_FR[d.getMonth()]} ${d.getFullYear()}`;
+    }
+    function fmtRangePrecise(startISO, endISO){
+        return `${fmtMonthYear(startISO)} — ${endISO ? fmtMonthYear(endISO) : "Présent"}`;
+    }
+    function monthsBetween(aISO, bISO){
+        const a = new Date(aISO), b = new Date(bISO ?? new Date());
+        return (b.getFullYear()-a.getFullYear())*12 + (b.getMonth()-a.getMonth());
+    }
+    function fmtDuration(startISO, endISO){
+        const m = monthsBetween(startISO, endISO);
+        const y = Math.floor(m/12), r = m%12;
+        if (y && r) return `${y} ${y>1?"ans":"an"} ${r} mois`;
+        if (y)       return `${y} ${y>1?"ans":"an"}`;
+        return `${m} mois`;
+    }
+
     // Larger number = larger bubble (radius in pixels)
     const PRESTIGE = {
     "Google": 74,
@@ -397,7 +419,7 @@
         d.className = 'tl-item';
         d.innerHTML = `
             <div class="tl-heading">${x.org} — ${x.role}</div>
-            <div class="tl-meta">${fmtRange(x.start, x.end)}</div>
+            <div class="tl-meta">${fmtRangePrecise(x.start, x.end)} • ${fmtDuration(x.start, x.end)}</div>
             ${x.notes ? `<div class="tl-notes">${x.notes}</div>` : ""}`;
         wrap.appendChild(d);
         });
@@ -457,7 +479,7 @@
         // 3) svg size
         const rowH = 36, rowGap = 12, topPad = 40, rightPad = 24, bottomPad = 44;
         const rows = items.length;
-        const pxPerYear = 140;
+        const pxPerYear = 180;
         const svgW = Math.max(800, (maxYear - minYear + 1) * pxPerYear + leftPad + rightPad);
         const svgH = topPad + rows*(rowH+rowGap) + bottomPad;
 
@@ -476,20 +498,33 @@
             return leftPad + (t - t0) / (t1 - t0) * (svgW - leftPad - rightPad);
         };
 
-        // 5) axis grid + YEAR NUMBERS (kept)
-        for(let y=minYear; y<=maxYear; y++){
-            const x = xScale(getYearStart(y));
-            const grid = document.createElementNS('http://www.w3.org/2000/svg','line');
-            grid.setAttribute('x1', x); grid.setAttribute('x2', x);
-            grid.setAttribute('y1', topPad-8); grid.setAttribute('y2', svgH-bottomPad+6);
-            grid.setAttribute('stroke', '#E5E7EB'); grid.setAttribute('stroke-width', 1);
-            svg.appendChild(grid);
+        // 5) grid: light monthly lines, bold yearly lines + year labels
+        for (let y = minYear; y <= maxYear; y++){
+            for (let m = 0; m < 12; m++){
+                const x = xScale(new Date(y, m, 1));
+                const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+                line.setAttribute('x1', x); line.setAttribute('x2', x);
+                line.setAttribute('y1', topPad-8); line.setAttribute('y2', svgH-bottomPad+6);
+                // January (year boundary) gets a darker line
+                if (m === 0) {
+                line.setAttribute('stroke', '#E5E7EB');
+                line.setAttribute('stroke-width', 1.2);
+                } else {
+                line.setAttribute('stroke', '#EEF2F7'); // very light
+                line.setAttribute('stroke-width', 1);
+                }
+                svg.appendChild(line);
 
-            const tx = document.createElementNS('http://www.w3.org/2000/svg','text');
-            tx.setAttribute('x', x+4); tx.setAttribute('y', topPad-16);
-            tx.textContent = y;             // <-- axis year label stays
-            svg.appendChild(tx);
+                // Year label once per year (above the January line)
+                if (m === 0){
+                const tx = document.createElementNS('http://www.w3.org/2000/svg','text');
+                tx.setAttribute('x', x + 4); tx.setAttribute('y', topPad-16);
+                tx.textContent = y;
+                svg.appendChild(tx);
+                }
+            }
         }
+
 
         // 6) rows & bars (NO duration text on bars)
         items.forEach((it, idx)=>{
@@ -518,7 +553,7 @@
             bar.setAttribute('fill', colourFor(kind));
             // tooltip with dates on hover
             const tip = document.createElementNS('http://www.w3.org/2000/svg','title');
-            tip.textContent = `${it.org} — ${it.role} | ${fmtRange(it.start, it.end)}`;
+            tip.textContent = `${it.org} — ${it.role}\n${fmtRangePrecise(it.start, it.end)}  •  ${fmtDuration(it.start, it.end)}`;
             bar.appendChild(tip);
             svg.appendChild(bar);
 
@@ -526,7 +561,7 @@
         });
     }
 
-    loadTimeline();
+    // loadTimeline();
     </script>
 </body>
 </html>
