@@ -55,6 +55,24 @@
 
         /* Gantt axes & labels (SVG text inherits) */
         svg text{ font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial; fill:#374151; font-size:12.5px; }
+        
+        /* Bubble map */
+        .bubble-wrap{
+        margin-top:1rem;
+        border:1px solid #e5e7eb;
+        border-radius:14px;
+        background:#fafafa;
+        padding:.5rem;
+        overflow:hidden;
+        }
+        .bubble-svg{ display:block; width:100%; height:420px; }
+        .bubble-label{ font-size:12px; fill:#111827; font-weight:600; pointer-events:none; }
+        .bubble-sub{ font-size:10px; fill:#475569; pointer-events:none; }
+        .bubble-node{ cursor:pointer; transition:opacity .15s ease; }
+        .bubble-node:hover{ opacity:.9; }
+        .bubble-node.selected circle { stroke:#111827; stroke-width:3; }
+        .highlight-row { animation: rowFlash 1.2s ease; }
+        @keyframes rowFlash { 0%{opacity:.4} 100%{opacity:1} }
     </style>
 </head>
 <body>
@@ -97,10 +115,151 @@
 
         <h3>Entreprises</h3>
         <ul id="businesses" class="chips"></ul>
+        <div id="bubblemap" class="bubble-wrap" aria-label="Carte à bulles des entreprises"></div>
     </section>
     </main>
 
-  <script>
+    <script>
+    // Larger number = larger bubble (radius in pixels)
+    const PRESTIGE = {
+    "Google": 70,
+    "Microsoft": 62,
+    "UCL": 54,
+    "Capgemini": 48,
+    "McMaster University": 44,
+    "GeeksforGeeks": 40,
+    "Quora": 38,
+    "Unbounded Future": 36,
+    "Geologix": 34
+    };
+    const DEFAULT_RADIUS = 34;
+
+    // Compute dominant type per org
+    function orgDominantType(items, org){
+    const counts = { full:0, intern:0, current:0 };
+    items.filter(i=>i.org===org).forEach(it => counts[getExpType(it)]++);
+    // tie-breaker order: current > full > intern (pick what you prefer)
+    if (counts.current >= counts.full && counts.current >= counts.intern) return 'current';
+    if (counts.full    >= counts.intern) return 'full';
+    return 'intern';
+    }
+
+    // map prestige -> radius (if number provided use as-is, else default)
+    function radiusFor(name){ return PRESTIGE[name] || DEFAULT_RADIUS; }
+
+    function renderBubbleMap(items){
+    const wrap = document.getElementById('bubblemap');
+    wrap.innerHTML = "";
+    const w = wrap.clientWidth || 960, h = 420, cx = w/2, cy = h/2;
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', h);
+    svg.classList.add('bubble-svg');
+    wrap.appendChild(svg);
+
+    // nodes
+    const orgs = [...new Set(items.map(i => i.org))];
+    const nodes = orgs.map(name => {
+        const r = radiusFor(name);
+        const firstRole = (items.find(i=>i.org===name) || {}).role || "";
+        const kind = orgDominantType(items, name);
+        return { name, role:firstRole, r, kind, x:0, y:0, vx:0, vy:0 };
+    });
+
+    // initial circle
+    const ringR = Math.min(w,h)*0.33;
+    nodes.forEach((n,i)=>{ const t=(i/nodes.length)*Math.PI*2; n.x=cx+ringR*Math.cos(t); n.y=cy+ringR*Math.sin(t); });
+
+    // tiny force sim
+    const steps = 260;
+    for(let s=0;s<steps;s++){
+        nodes.forEach(n=>{ n.vx+=(cx-n.x)*0.0025; n.vy+=(cy-n.y)*0.0025; });
+        for(let i=0;i<nodes.length;i++){
+        for(let j=i+1;j<nodes.length;j++){
+            const a=nodes[i], b=nodes[j];
+            let dx=b.x-a.x, dy=b.y-a.y, d2=dx*dx+dy*dy;
+            const minD=a.r+b.r+10; if(!d2){dx=0.01;dy=0.01;d2=dx*dx+dy*dy;}
+            const d=Math.sqrt(d2);
+            if(d<minD){
+            const push=(minD-d)*0.5, ux=dx/d, uy=dy/d;
+            a.vx-=ux*push*0.02; a.vy-=uy*push*0.02;
+            b.vx+=ux*push*0.02; b.vy+=uy*push*0.02;
+            }
+        }
+        }
+        nodes.forEach(n=>{
+        n.vx*=0.92; n.vy*=0.92; n.x+=n.vx; n.y+=n.vy;
+        n.x=Math.max(n.r+8,Math.min(w-n.r-8,n.x));
+        n.y=Math.max(n.r+8,Math.min(h-n.r-8,n.y));
+        });
+    }
+
+    // draw
+    nodes.forEach(n=>{
+        const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+        g.classList.add('bubble-node');
+        g.setAttribute('transform', `translate(${n.x},${n.y})`);
+        svg.appendChild(g);
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        circle.setAttribute('r', n.r);
+        circle.setAttribute('fill', colourFor(n.kind));   // <- colour by dominant type
+        circle.setAttribute('stroke', '#ffffff');
+        circle.setAttribute('stroke-width', '2');
+        g.appendChild(circle);
+
+        const title = document.createElementNS('http://www.w3.org/2000/svg','title');
+        title.textContent = `${n.name}\n${n.role}`;
+        g.appendChild(title);
+
+        const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+        label.setAttribute('text-anchor','middle');
+        label.setAttribute('y', -2);
+        label.setAttribute('class','bubble-label');
+        label.textContent = n.name;
+        g.appendChild(label);
+
+        if (n.role){
+        const sub = document.createElementNS('http://www.w3.org/2000/svg','text');
+        sub.setAttribute('text-anchor','middle');
+        sub.setAttribute('y', 14);
+        sub.setAttribute('class','bubble-sub');
+        sub.textContent = n.role.length>26 ? n.role.slice(0,24)+'…' : n.role;
+        g.appendChild(sub);
+        }
+
+        // click -> scroll to first matching row in list (if visible) or Gantt
+        g.addEventListener('click', ()=>{
+        // small visual feedback
+        document.querySelectorAll('.bubble-node.selected').forEach(el=>el.classList.remove('selected'));
+        g.classList.add('selected');
+
+        // try list view first
+        const list = document.getElementById('timeline');
+        const row = [...list.querySelectorAll('.tl-item')].find(el => el.textContent.includes(n.name));
+        if (!elList.hidden && row){
+            row.classList.add('highlight-row');
+            row.scrollIntoView({behavior:'smooth', block:'center'});
+            setTimeout(()=>row.classList.remove('highlight-row'), 1200);
+        } else {
+            // otherwise just scroll the gantt container
+            document.querySelector('.gantt-scroller').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        });
+    });
+
+    // repack on resize (debounced)
+    if (!renderBubbleMap._resizeBound){
+        renderBubbleMap._resizeBound = true;
+        let t;
+        window.addEventListener('resize', ()=>{
+        clearTimeout(t); t=setTimeout(()=>renderBubbleMap(items), 180);
+        });
+    }
+    }
+
     function fmtRange(startISO, endISO) {
         const s = new Date(startISO).getFullYear();
         const e = endISO ? new Date(endISO).getFullYear() : "Présent";
@@ -149,6 +308,7 @@
         const items = (await res.json()).sort((a,b)=> new Date(b.start) - new Date(a.start));
 
         renderList(items);
+        renderBubbleMap(items);
         renderChips(items);
         renderGantt(items);
     })();
