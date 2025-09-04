@@ -4,14 +4,14 @@
     "org": "Microsoft",
     "role": "Student Ambassador (Gold)",
     "start": "2021-01-01",
-    "end": "2024-12-31"
+    "end": "2024-09-24"
   },
   {
     "id": "ucl",
     "org": "UCL",
     "role": "Research/Academic Experience",
-    "start": "2020-01-01",
-    "end": "2023-12-31"
+    "start": "2020-09-01",
+    "end": "2023-06-01"
   },
   {
     "id": "google",
@@ -38,7 +38,7 @@
     "id": "geologix",
     "org": "Geologix",
     "role": "Automation Engineer",
-    "start": "2025-01-01",
+    "start": "2025-01-06",
     "end": null
   },
   {
@@ -52,8 +52,8 @@
     "id": "gfg",
     "org": "GeeksforGeeks",
     "role": "Contributor",
-    "start": "2022-01-01",
-    "end": "2023-12-31"
+    "start": "2022-06-01",
+    "end": "2023-06-01"
   },
   {
     "id": "quora",

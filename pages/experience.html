@@ -48,6 +48,11 @@
         padding: 1rem; max-height:520px;
         }
 
+        /* Legend colours */
+        .key-full    { background:#2563eb; } /* blue */
+        .key-intern  { background:#ef4444; } /* red */
+        .key-current { background:#10b981; } /* green */
+
         /* Gantt axes & labels (SVG text inherits) */
         svg text{ font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial; fill:#374151; font-size:12.5px; }
     </style>
@@ -80,8 +85,9 @@
         <!-- Gantt timeline -->
         <div id="gantt" class="gantt" hidden>
         <div class="gantt-legend">
-            <span class="dot past"></span><b>Terminé</b>
-            <span class="dot present"></span><b>En cours</b>
+            <span class="dot key-full"></span><b>Plein temps</b>
+            <span class="dot key-intern"></span><b>Stage</b>
+            <span class="dot key-current"></span><b>En cours</b>
         </div>
         <div class="gantt-scroller">
             <svg id="ganttSvg" width="100%" height="100" role="img" aria-label="Gantt des expériences"></svg>
@@ -171,6 +177,22 @@
         });
     }
 
+    // Detect experience type from role + 'end' date
+    function getExpType(it){
+        if (!it.end) return 'current'; // ongoing
+        const r = (it.role || '').toLowerCase();
+        if (r.includes('intern')) return 'intern'; // Intern, Internship, etc.
+        return 'full'; // everything else
+    }
+
+    function colourFor(type){
+        switch(type){
+            case 'current': return '#10b981'; // green
+            case 'intern':  return '#ef4444'; // red
+            default:        return '#2563eb'; // blue
+        }
+    }
+
     function renderGantt(items){
         // helpers
         const parseDate = d => d ? new Date(d) : new Date();
@@ -255,7 +277,8 @@
             bar.setAttribute('height', rowH - 12);
             bar.setAttribute('rx', 8);
             bar.setAttribute('ry', 8);
-            bar.setAttribute('fill', it.end ? '#9CA3AF' : '#111827');
+            const kind = getExpType(it);
+            bar.setAttribute('fill', colourFor(kind));
             // tooltip with dates on hover
             const tip = document.createElementNS('http://www.w3.org/2000/svg','title');
             tip.textContent = `${it.org} — ${it.role} | ${fmtRange(it.start, it.end)}`;
