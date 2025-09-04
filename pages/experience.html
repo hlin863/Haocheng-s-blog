@@ -65,9 +65,16 @@
         padding:.5rem;
         overflow:hidden;
         }
-        .bubble-svg{ display:block; width:100%; height:420px; }
-        .bubble-label{ font-size:12px; fill:#111827; font-weight:600; pointer-events:none; }
-        .bubble-sub{ font-size:10px; fill:#475569; pointer-events:none; }
+        /* Better label contrast */
+        .bubble-label, .bubble-sub {
+        paint-order: stroke fill;          /* draw stroke first so text stays crisp */
+        stroke: #ffffff;
+        stroke-width: 2px;                 /* thin outline improves contrast on colors */
+        }
+
+        @media (max-width: 640px){
+        .bubble-svg{ height: 360px; }      /* a little shorter on narrow screens */
+        }
         .bubble-node{ cursor:pointer; transition:opacity .15s ease; }
         .bubble-node:hover{ opacity:.9; }
         .bubble-node.selected circle { stroke:#111827; stroke-width:3; }
@@ -122,8 +129,8 @@
     <script>
     // Larger number = larger bubble (radius in pixels)
     const PRESTIGE = {
-    "Google": 70,
-    "Microsoft": 62,
+    "Google": 74,
+    "Microsoft": 66,
     "UCL": 54,
     "Capgemini": 48,
     "McMaster University": 44,
@@ -145,7 +152,49 @@
     }
 
     // map prestige -> radius (if number provided use as-is, else default)
-    function radiusFor(name){ return PRESTIGE[name] || DEFAULT_RADIUS; }
+    function radiusFor(name){
+        const base = PRESTIGE[name] || DEFAULT_RADIUS;
+        // scale by viewport so layout stays balanced across widths
+        const wrap = document.getElementById('bubblemap');
+        const w = (wrap && wrap.clientWidth) ? wrap.clientWidth : 980;
+        const scale = clamp(w / 980, 0.8, 1.25);   // tweak range to taste
+        return clamp(Math.round(base * scale), 26, 92); // min 26px, max 92px
+    }
+
+    // Clamp helper
+    const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+    // Estimate how many chars fit on one line inside the circle
+    function charsThatFit(r, fontPx){
+    // rough width estimate per char ~0.6em, circle text area ~ 1.8 * r
+    const approxWidth = r * 1.8;
+    return Math.max(4, Math.floor(approxWidth / (fontPx * 0.62)));
+    }
+
+    // Split into 1–2 lines if needed
+    function wrapTwoLines(text, maxPerLine){
+        if (text.length <= maxPerLine) return [text];
+        // try two lines balanced
+        const words = text.split(' ');
+        if (words.length === 1) {
+            return [text.slice(0, maxPerLine), text.slice(maxPerLine)];
+        }
+        let line1 = '', line2 = '';
+        for (const w of words){
+            if ((line1 + (line1? ' ':'') + w).length <= maxPerLine) {
+            line1 += (line1? ' ':'') + w;
+            } else {
+            line2 += (line2? ' ':'') + w;
+            }
+        }
+        if (!line2) return [line1];              // fell back to one line
+        return [line1, line2];
+    }
+
+    // Truncate with ellipsis if still too long
+    function ellipsis(s, max){
+        return s.length <= max ? s : s.slice(0, Math.max(0, max-1)) + '…';
+    }
 
     function renderBubbleMap(items){
     const wrap = document.getElementById('bubblemap');
@@ -198,55 +247,82 @@
 
     // draw
     nodes.forEach(n=>{
+        // group for one bubble
         const g = document.createElementNS('http://www.w3.org/2000/svg','g');
         g.classList.add('bubble-node');
         g.setAttribute('transform', `translate(${n.x},${n.y})`);
         svg.appendChild(g);
 
+        // circle
         const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
         circle.setAttribute('r', n.r);
-        circle.setAttribute('fill', colourFor(n.kind));   // <- colour by dominant type
+        circle.setAttribute('fill', colourFor(n.kind));
         circle.setAttribute('stroke', '#ffffff');
         circle.setAttribute('stroke-width', '2');
         g.appendChild(circle);
 
+        // tooltip
         const title = document.createElementNS('http://www.w3.org/2000/svg','title');
         title.textContent = `${n.name}\n${n.role}`;
         g.appendChild(title);
 
-        const label = document.createElementNS('http://www.w3.org/2000/svg','text');
-        label.setAttribute('text-anchor','middle');
-        label.setAttribute('y', -2);
-        label.setAttribute('class','bubble-label');
-        label.textContent = n.name;
-        g.appendChild(label);
+        // ----- name label (auto size + wrap) -----
+        const nameFs = clamp(Math.round(n.r * 0.34), 11, 18);
+        const maxChars = charsThatFit(n.r, nameFs);
+        const lines = wrapTwoLines(n.name, maxChars);
 
-        if (n.role){
-        const sub = document.createElementNS('http://www.w3.org/2000/svg','text');
-        sub.setAttribute('text-anchor','middle');
-        sub.setAttribute('y', 14);
-        sub.setAttribute('class','bubble-sub');
-        sub.textContent = n.role.length>26 ? n.role.slice(0,24)+'…' : n.role;
-        g.appendChild(sub);
+        if (lines.length === 1){
+            const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+            label.setAttribute('text-anchor','middle');
+            label.setAttribute('y', 2);
+            label.setAttribute('class','bubble-label');
+            label.setAttribute('font-size', nameFs);
+            label.textContent = ellipsis(lines[0], maxChars);
+            g.appendChild(label);
+        } else {
+            const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+            label.setAttribute('text-anchor','middle');
+            label.setAttribute('class','bubble-label');
+            label.setAttribute('font-size', nameFs);
+            const t1 = document.createElementNS('http://www.w3.org/2000/svg','tspan');
+            t1.setAttribute('x', 0);
+            t1.setAttribute('dy', -2);
+            t1.textContent = ellipsis(lines[0], maxChars);
+            const t2 = document.createElementNS('http://www.w3.org/2000/svg','tspan');
+            t2.setAttribute('x', 0);
+            t2.setAttribute('dy', nameFs + 2);
+            t2.textContent = ellipsis(lines[1], maxChars);
+            label.appendChild(t1); label.appendChild(t2);
+            g.appendChild(label);
         }
 
-        // click -> scroll to first matching row in list (if visible) or Gantt
-        g.addEventListener('click', ()=>{
-        // small visual feedback
-        document.querySelectorAll('.bubble-node.selected').forEach(el=>el.classList.remove('selected'));
-        g.classList.add('selected');
+        // ----- role label (show only if there is room) -----
+        if (n.role && n.r >= 40){
+            const roleFs = clamp(Math.round(n.r * 0.24), 10, 13);
+            const maxRole = Math.max(8, Math.floor((n.r * 1.7) / (roleFs * 0.62)));
+            const sub = document.createElementNS('http://www.w3.org/2000/svg','text');
+            sub.setAttribute('text-anchor','middle');
+            sub.setAttribute('y', nameFs + 16);
+            sub.setAttribute('class','bubble-sub');
+            sub.setAttribute('font-size', roleFs);
+            sub.textContent = ellipsis(n.role, maxRole);
+            g.appendChild(sub);
+        }
 
-        // try list view first
-        const list = document.getElementById('timeline');
-        const row = [...list.querySelectorAll('.tl-item')].find(el => el.textContent.includes(n.name));
-        if (!elList.hidden && row){
+        // click highlight (optional; keeps your old behavior)
+        g.addEventListener('click', ()=>{
+            document.querySelectorAll('.bubble-node.selected').forEach(el=>el.classList.remove('selected'));
+            g.classList.add('selected');
+
+            const list = document.getElementById('timeline');
+            const row = [...list.querySelectorAll('.tl-item')].find(el => el.textContent.includes(n.name));
+            if (!elList.hidden && row){
             row.classList.add('highlight-row');
             row.scrollIntoView({behavior:'smooth', block:'center'});
             setTimeout(()=>row.classList.remove('highlight-row'), 1200);
-        } else {
-            // otherwise just scroll the gantt container
+            } else {
             document.querySelector('.gantt-scroller').scrollTo({ top: 0, behavior: 'smooth' });
-        }
+            }
         });
     });
 
