@@ -1,56 +1,56 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Expérience</title>
-  <link rel="stylesheet" href="/style/style.css" />
-  <style>
-    #timeline { position:relative; margin:1rem 0 2rem; padding-left:1rem; border-left:2px solid #e5e7eb; }
-    .timeline-item { position:relative; margin:1rem 0 1.5rem; padding-left:1rem; }
-    .timeline-item::before { content:""; position:absolute; left:-6px; top:.2rem; width:10px; height:10px; border-radius:9999px; background:#111827; }
-    .timeline-heading { font-weight:600; }
-    .timeline-meta { font-size:.9rem; color:#6b7280; }
-    .chips { list-style:none; padding:0; display:flex; gap:.5rem; flex-wrap:wrap; }
-    .chips li { padding:.35rem .6rem; border:1px solid #e5e7eb; border-radius:9999px; }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expérience</title>
+    <link rel="stylesheet" href="/style/style.css" />
+    <style>
+        #timeline { position:relative; margin:1rem 0 2rem; padding-left:1rem; border-left:2px solid #e5e7eb; }
+        .timeline-item { position:relative; margin:1rem 0 1.5rem; padding-left:1rem; }
+        .timeline-item::before { content:""; position:absolute; left:-6px; top:.2rem; width:10px; height:10px; border-radius:9999px; background:#111827; }
+        .timeline-heading { font-weight:600; }
+        .timeline-meta { font-size:.9rem; color:#6b7280; }
+        .chips { list-style:none; padding:0; display:flex; gap:.5rem; flex-wrap:wrap; }
+        .chips li { padding:.35rem .6rem; border:1px solid #e5e7eb; border-radius:9999px; }
 
-    /* Layout polish */
-    .exp-wrap { max-width: 980px; margin: 0 auto; padding: 1rem; }
-    .exp-header { display:flex; align-items:center; justify-content:space-between; gap:1rem; }
-    .view-toggle { display:flex; gap:.5rem; }
-    .view-toggle button{
-    border:1px solid #e5e7eb; background:#fff; padding:.45rem .8rem; border-radius:9999px;
-    font-weight:600; cursor:pointer; transition:all .15s ease;
-    }
-    .view-toggle button.active{ background:#111827; color:#fff; border-color:#111827; }
+        /* Layout polish */
+        .exp-wrap { max-width: 980px; margin: 0 auto; padding: 1rem; }
+        .exp-header { display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+        .view-toggle { display:flex; gap:.5rem; }
+        .view-toggle button{
+        border:1px solid #e5e7eb; background:#fff; padding:.45rem .8rem; border-radius:9999px;
+        font-weight:600; cursor:pointer; transition:all .15s ease;
+        }
+        .view-toggle button.active{ background:#111827; color:#fff; border-color:#111827; }
 
-    /* Better list timeline */
-    .timeline-list{ position:relative; margin:1.25rem 0 2rem; padding-left:1.25rem; border-left:2px solid #e5e7eb; }
-    .tl-item{ position:relative; margin:1rem 0 1.4rem; padding-left:1rem; }
-    .tl-item::before{ content:""; position:absolute; left:-7px; top:.45rem; width:12px; height:12px; border-radius:999px; background:#111827; box-shadow:0 0 0 4px #fff; }
-    .tl-heading{ font-weight:700; }
-    .tl-meta{ font-size:.9rem; color:#6b7280; margin-top:.15rem; }
-    .tl-notes{ margin-top:.35rem; line-height:1.4; }
+        /* Better list timeline */
+        .timeline-list{ position:relative; margin:1.25rem 0 2rem; padding-left:1.25rem; border-left:2px solid #e5e7eb; }
+        .tl-item{ position:relative; margin:1rem 0 1.4rem; padding-left:1rem; }
+        .tl-item::before{ content:""; position:absolute; left:-7px; top:.45rem; width:12px; height:12px; border-radius:999px; background:#111827; box-shadow:0 0 0 4px #fff; }
+        .tl-heading{ font-weight:700; }
+        .tl-meta{ font-size:.9rem; color:#6b7280; margin-top:.15rem; }
+        .tl-notes{ margin-top:.35rem; line-height:1.4; }
 
-    /* Chips */
-    .chips{ list-style:none; padding:0; display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.75rem; }
-    .chips li{ padding:.35rem .6rem; border:1px solid #e5e7eb; border-radius:9999px; background:#fff; }
+        /* Chips */
+        .chips{ list-style:none; padding:0; display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.75rem; }
+        .chips li{ padding:.35rem .6rem; border:1px solid #e5e7eb; border-radius:9999px; background:#fff; }
 
-    /* Gantt */
-    .gantt{ margin-top:1rem; }
-    .gantt-legend{ display:flex; align-items:center; gap:.75rem; font-size:.9rem; color:#374151; margin-bottom:.5rem; }
-    .gantt-legend .dot{ width:10px; height:10px; border-radius:9999px; display:inline-block; }
-    .gantt-legend .past{ background:#9CA3AF; }
-    .gantt-legend .present{ background:#111827; }
+        /* Gantt */
+        .gantt{ margin-top:1rem; }
+        .gantt-legend{ display:flex; align-items:center; gap:.75rem; font-size:.9rem; color:#374151; margin-bottom:.5rem; }
+        .gantt-legend .dot{ width:10px; height:10px; border-radius:9999px; display:inline-block; }
+        .gantt-legend .past{ background:#9CA3AF; }
+        .gantt-legend .present{ background:#111827; }
 
-    .gantt-scroller{
-    overflow:auto; border:1px solid #e5e7eb; border-radius:12px; background:#fafafa; 
-    padding:.75rem; max-height:520px;
-    }
+        .gantt-scroller{
+        overflow:auto; border:1px solid #e5e7eb; border-radius:12px; background:#fafafa; 
+        padding: 1rem; max-height:520px;
+        }
 
-    /* Gantt axes & labels (SVG text inherits) */
-    svg text{ font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial; fill:#374151; font-size:12px; }
-  </style>
+        /* Gantt axes & labels (SVG text inherits) */
+        svg text{ font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial; fill:#374151; font-size:12.5px; }
+    </style>
 </head>
 <body>
   <header>
@@ -172,18 +172,34 @@
     }
 
     function renderGantt(items){
-        // compute date range
+        // helpers
+        const parseDate = d => d ? new Date(d) : new Date();
+        const getYearStart = y => new Date(`${y}-01-01T00:00:00`);
+
+        // 1) dynamic left column width
+        const measureText = (txt, font='12px system-ui') => {
+            const c = document.createElement('canvas');
+            const ctx = c.getContext('2d');
+            ctx.font = font;
+            return ctx.measureText(txt).width;
+        };
+        const labels = items.map(it => `${it.org} — ${it.role}`);
+        const maxLabelPx = Math.max(...labels.map(t => measureText(t)));
+        const leftPad = Math.max(160, 24 + Math.ceil(maxLabelPx)); // min 160
+
+        // 2) date range
         const starts = items.map(i=>parseDate(i.start));
         const ends   = items.map(i=>parseDate(i.end));
         const minDate = new Date(Math.min(...starts.map(d=>d.getTime())));
         const maxDate = new Date(Math.max(...ends.map(d=>d.getTime())));
         const minYear = minDate.getFullYear();
-        const maxYear = Math.max(maxDate.getFullYear(), new Date().getFullYear()); // include present
+        const maxYear = Math.max(maxDate.getFullYear(), new Date().getFullYear());
 
-        // svg sizing
-        const rowH = 36, rowGap = 10, topPad = 32, leftPad = 140, rightPad = 16, bottomPad = 40;
+        // 3) svg size
+        const rowH = 36, rowGap = 12, topPad = 40, rightPad = 24, bottomPad = 44;
         const rows = items.length;
-        const svgW = Math.max(800, (maxYear - minYear + 1) * 140); // responsive width by years
+        const pxPerYear = 140;
+        const svgW = Math.max(800, (maxYear - minYear + 1) * pxPerYear + leftPad + rightPad);
         const svgH = topPad + rows*(rowH+rowGap) + bottomPad;
 
         const svg = document.getElementById('ganttSvg');
@@ -193,65 +209,60 @@
         // clear
         while (svg.firstChild) svg.removeChild(svg.firstChild);
 
-        // background grid (years)
-        const years = [];
-        for(let y=minYear; y<=maxYear; y++){ years.push(y); }
-
+        // 4) scale
         const xScale = (date)=>{
-        const t0 = getYearStart(minYear).getTime();
-        const t1 = getYearStart(maxYear+1).getTime();
-        const t  = new Date(date).getTime();
-        return leftPad + (t - t0) / (t1 - t0) * (svgW - leftPad - rightPad);
+            const t0 = getYearStart(minYear).getTime();
+            const t1 = getYearStart(maxYear+1).getTime();
+            const t  = new Date(date).getTime();
+            return leftPad + (t - t0) / (t1 - t0) * (svgW - leftPad - rightPad);
         };
 
-        // year grid & labels
-        years.forEach(y=>{
-        const x = xScale(getYearStart(y));
-        const grid = document.createElementNS('http://www.w3.org/2000/svg','line');
-        grid.setAttribute('x1', x); grid.setAttribute('x2', x);
-        grid.setAttribute('y1', topPad-8); grid.setAttribute('y2', svgH-bottomPad+6);
-        grid.setAttribute('stroke', '#E5E7EB'); grid.setAttribute('stroke-width', 1);
-        svg.appendChild(grid);
+        // 5) axis grid + YEAR NUMBERS (kept)
+        for(let y=minYear; y<=maxYear; y++){
+            const x = xScale(getYearStart(y));
+            const grid = document.createElementNS('http://www.w3.org/2000/svg','line');
+            grid.setAttribute('x1', x); grid.setAttribute('x2', x);
+            grid.setAttribute('y1', topPad-8); grid.setAttribute('y2', svgH-bottomPad+6);
+            grid.setAttribute('stroke', '#E5E7EB'); grid.setAttribute('stroke-width', 1);
+            svg.appendChild(grid);
 
-        const tx = document.createElementNS('http://www.w3.org/2000/svg','text');
-        tx.setAttribute('x', x+4); tx.setAttribute('y', topPad-12);
-        tx.textContent = y;
-        svg.appendChild(tx);
-        });
+            const tx = document.createElementNS('http://www.w3.org/2000/svg','text');
+            tx.setAttribute('x', x+4); tx.setAttribute('y', topPad-16);
+            tx.textContent = y;             // <-- axis year label stays
+            svg.appendChild(tx);
+        }
 
-        // rows & bars
+        // 6) rows & bars (NO duration text on bars)
         items.forEach((it, idx)=>{
-        const y = topPad + idx*(rowH+rowGap);
+            const y = topPad + idx*(rowH+rowGap);
 
-        // org/role label
-        const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
-        lbl.setAttribute('x', 8);
-        lbl.setAttribute('y', y + rowH*0.7);
-        lbl.textContent = `${it.org} — ${it.role}`;
-        svg.appendChild(lbl);
+            // left label
+            const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+            lbl.setAttribute('x', 8);
+            lbl.setAttribute('y', y + rowH*0.7);
+            lbl.textContent = `${it.org} — ${it.role}`;
+            svg.appendChild(lbl);
 
-        // bar
-        const startX = xScale(parseDate(it.start));
-        const endX   = xScale(parseDate(it.end || new Date()));
-        const w      = Math.max(8, endX - startX);
+            // bar
+            const startX = xScale(parseDate(it.start));
+            const endX   = xScale(parseDate(it.end || new Date()));
+            const w      = Math.max(8, endX - startX);
 
-        const bar = document.createElementNS('http://www.w3.org/2000/svg','rect');
-        bar.setAttribute('x', startX);
-        bar.setAttribute('y', y + 6);
-        bar.setAttribute('width', w);
-        bar.setAttribute('height', rowH - 12);
-        bar.setAttribute('rx', 8);
-        bar.setAttribute('ry', 8);
-        bar.setAttribute('fill', it.end ? '#9CA3AF' : '#111827'); // past vs present
-        svg.appendChild(bar);
+            const bar = document.createElementNS('http://www.w3.org/2000/svg','rect');
+            bar.setAttribute('x', startX);
+            bar.setAttribute('y', y + 6);
+            bar.setAttribute('width', w);
+            bar.setAttribute('height', rowH - 12);
+            bar.setAttribute('rx', 8);
+            bar.setAttribute('ry', 8);
+            bar.setAttribute('fill', it.end ? '#9CA3AF' : '#111827');
+            // tooltip with dates on hover
+            const tip = document.createElementNS('http://www.w3.org/2000/svg','title');
+            tip.textContent = `${it.org} — ${it.role} | ${fmtRange(it.start, it.end)}`;
+            bar.appendChild(tip);
+            svg.appendChild(bar);
 
-        // duration label
-        const meta = document.createElementNS('http://www.w3.org/2000/svg','text');
-        meta.setAttribute('x', startX + 6);
-        meta.setAttribute('y', y + rowH - 6);
-        meta.textContent = fmtRange(it.start, it.end);
-        meta.setAttribute('fill', '#F9FAFB');
-        svg.appendChild(meta);
+            // (Removed the duration text entirely to keep bars clean)
         });
     }
 
