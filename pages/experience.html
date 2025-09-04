@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expérience</title>
+  <link rel="stylesheet" href="/style/style.css" />
+  <style>
+    #timeline { position:relative; margin:1rem 0 2rem; padding-left:1rem; border-left:2px solid #e5e7eb; }
+    .timeline-item { position:relative; margin:1rem 0 1.5rem; padding-left:1rem; }
+    .timeline-item::before { content:""; position:absolute; left:-6px; top:.2rem; width:10px; height:10px; border-radius:9999px; background:#111827; }
+    .timeline-heading { font-weight:600; }
+    .timeline-meta { font-size:.9rem; color:#6b7280; }
+    .chips { list-style:none; padding:0; display:flex; gap:.5rem; flex-wrap:wrap; }
+    .chips li { padding:.35rem .6rem; border:1px solid #e5e7eb; border-radius:9999px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Mon Blog</h1>
+    <nav>
+      <a href="/index.html">Accueil</a>
+      <a href="/pages/daily_blog.html">Mon blog quotidien</a>
+      <a href="/pages/experience.html">Expérience</a>
+      <a href="/pages/about.html">À propos</a>
+      <a href="/pages/contact.html">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <section>
+      <h2>Experience Timeline</h2>
+      <div id="timeline"></div>
+      <h3>Entreprises</h3>
+      <ul id="businesses" class="chips"></ul>
+    </section>
+  </main>
+
+  <script>
+    function fmtRange(startISO, endISO) {
+        const s = new Date(startISO).getFullYear();
+        const e = endISO ? new Date(endISO).getFullYear() : "Présent";
+        return `${s} – ${e}`;
+    }
+
+    async function loadTimeline() {
+        const res = await fetch("/data/experiences.json");
+        const items = (await res.json())
+        .sort((a,b)=> new Date(b.start) - new Date(a.start));
+
+        const wrap = document.getElementById("timeline");
+        wrap.innerHTML = "";
+        items.forEach(x => {
+        const el = document.createElement("div");
+        el.className = "timeline-item";
+        el.innerHTML = `
+            <div class="timeline-heading">${x.org} — ${x.role}</div>
+            <div class="timeline-meta">${fmtRange(x.start, x.end)}</div>
+            ${x.notes ? `<div>${x.notes}</div>` : ""}`;
+        wrap.appendChild(el);
+        });
+
+        // derive businesses
+        const set = new Set(items.map(i => i.org));
+        const ul = document.getElementById("businesses");
+        ul.innerHTML = "";
+        [...set].forEach(n => { const li = document.createElement("li"); li.textContent = n; ul.appendChild(li); });
+    }
+
+    loadTimeline();
+    </script>
+</body>
+</html>

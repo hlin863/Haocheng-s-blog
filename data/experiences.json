@@ -1,0 +1,58 @@
+[
+  {
+    "id": "msla",
+    "org": "Microsoft",
+    "role": "Student Ambassador (Gold)",
+    "start": "2021-01-01",
+    "end": "2024-12-31"
+  },
+  {
+    "id": "ucl",
+    "org": "UCL",
+    "role": "Research/Academic Experience",
+    "start": "2020-01-01",
+    "end": "2023-12-31"
+  },
+  {
+    "id": "google",
+    "org": "Google",
+    "role": "Community/Contributor",
+    "start": "2016-01-01",
+    "end": null
+  },
+  {
+    "id": "capgemini",
+    "org": "Capgemini",
+    "role": "Researcher (Internship)",
+    "start": "2022-06-01",
+    "end": "2023-06-30"
+  },
+  {
+    "id": "mcmaster",
+    "org": "McMaster University",
+    "role": "Project/Internship",
+    "start": "2022-02-01",
+    "end": "2022-04-30"
+  },
+  {
+    "id": "geologix",
+    "org": "Geologix",
+    "role": "Automation Engineer",
+    "start": "2025-01-01",
+    "end": null
+  },
+  {
+    "id": "gfg",
+    "org": "GeeksforGeeks",
+    "role": "Contributor",
+    "start": "2022-01-01",
+    "end": "2023-12-31"
+  },
+  {
+    "id": "quora",
+    "org": "Quora",
+    "role": "Writer",
+    "start": "2022-01-01",
+    "end": null
+  }
+]
