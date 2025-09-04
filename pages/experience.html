@@ -80,6 +80,39 @@
         .bubble-node.selected circle { stroke:#111827; stroke-width:3; }
         .highlight-row { animation: rowFlash 1.2s ease; }
         @keyframes rowFlash { 0%{opacity:.4} 100%{opacity:1} }
+
+        /* --- Prestige Highlights (Champions League style) --- */
+        .honours {
+        margin: .5rem 0 1rem;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: .75rem;
+        }
+        .honour-card {
+        display: flex; align-items: center; gap: .75rem;
+        padding: .6rem .75rem;
+        border: 1px solid #e5e7eb; border-radius: 14px;
+        background: #fff; transition: transform .15s ease, box-shadow .15s ease;
+        }
+        .honour-card:hover { transform: translateY(-1px); box-shadow: 0 3px 14px rgba(0,0,0,.06); }
+
+        .honour-logo {
+        width: 36px; height: 36px; border-radius: 9px;
+        background: #f3f4f6; display: grid; place-items: center; overflow: hidden;
+        filter: grayscale(1) contrast(1.05); transition: filter .2s ease;
+        border: 1px solid #e5e7eb;
+        }
+        .honour-card:hover .honour-logo { filter: grayscale(0); }
+
+        .honour-logo img { width: 100%; height: 100%; object-fit: contain; }
+        .honour-meta { line-height: 1.1; }
+        .honour-name { font-weight: 700; font-size: .95rem; }
+        .honour-tier { font-size: .8rem; color:#6b7280; }
+
+        /* small screens: 2 per row */
+        @media (max-width: 640px){
+        .honours{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
     </style>
 </head>
 <body>
@@ -99,6 +132,9 @@
     <section class="exp-wrap">
         <div class="exp-header">
         <h2>Expérience</h2>
+        <!-- Prestige highlights (top 4 by PRESTIGE) -->
+        <div id="honours" class="honours" aria-label="Points forts de prestige"></div>
+
         <div class="view-toggle" role="tablist" aria-label="Type d'affichage">
             <button id="btn-list" class="active" role="tab" aria-selected="true">Liste</button>
             <button id="btn-gantt" role="tab" aria-selected="false">Gantt</button>
@@ -127,6 +163,83 @@
     </main>
 
     <script>
+    const LOGOS = {
+        "Google": "/images/logos/google.svg",
+        "Microsoft": "/images/logos/microsoft.svg",
+        "Capgemini": "/images/logos/capgemini.svg",
+        "UCL": "/images/logos/ucl.svg"
+    };
+
+    // Utility: initials fallback if a logo is missing
+    function initials(name){
+        return (name||"").split(/\s+/).map(w=>w[0]).join('').slice(0,3).toUpperCase();
+    }
+
+    // Build the “Champions League” strip from top prestige
+    function renderHonours(items){
+        const byOrg = [...new Set(items.map(i=>i.org))];
+        // score = PRESTIGE value (fallback 0). Sort desc and pick top 4
+        const top = byOrg
+            .map(name => ({ name, score: PRESTIGE[name] || 0 }))
+            .sort((a,b)=> b.score - a.score)
+            .slice(0,4);
+
+        const host = document.getElementById('honours');
+        host.innerHTML = '';
+        top.forEach(({name, score})=>{
+            const card = document.createElement('div');
+            card.className = 'honour-card';
+            card.setAttribute('role','button');
+            card.setAttribute('tabindex','0');
+            card.setAttribute('aria-label', `${name} — prestige ${score}`);
+
+            const logoBox = document.createElement('div');
+            logoBox.className = 'honour-logo';
+
+            const src = LOGOS[name];
+            if (src){
+            const img = document.createElement('img');
+            img.src = src; img.alt = name;
+            logoBox.appendChild(img);
+            } else {
+            // clean text fallback (initials)
+            const fallback = document.createElement('div');
+            fallback.style.fontWeight = '800';
+            fallback.style.fontSize = '.9rem';
+            fallback.textContent = initials(name);
+            logoBox.appendChild(fallback);
+            }
+
+            const meta = document.createElement('div');
+            meta.className = 'honour-meta';
+            const t = document.createElement('div');
+            t.className = 'honour-name';
+            t.textContent = name;
+            const s = document.createElement('div');
+            s.className = 'honour-tier';
+            s.textContent = 'Champions League • Top prestige';
+            meta.appendChild(t); meta.appendChild(s);
+
+            card.appendChild(logoBox);
+            card.appendChild(meta);
+
+            // click: jump to first matching row in list (or open Gantt)
+            card.addEventListener('click', ()=>{
+            const list = document.getElementById('timeline');
+            const row = [...list.querySelectorAll('.tl-item')].find(el => el.textContent.includes(name));
+            if (!document.getElementById('gantt').hidden && row == null){
+                document.querySelector('.gantt-scroller').scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (row){
+                row.classList.add('highlight-row');
+                row.scrollIntoView({behavior:'smooth', block:'center'});
+                setTimeout(()=>row.classList.remove('highlight-row'), 1200);
+            }
+            });
+
+            host.appendChild(card);
+        });
+    }
+
     // French month labels
     const MOIS_FR = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
 
@@ -406,6 +519,7 @@
         const res = await fetch('/data/experiences.json');
         const items = (await res.json()).sort((a,b)=> new Date(b.start) - new Date(a.start));
 
+        renderHonours(items);
         renderList(items);
         renderBubbleMap(items);
         renderChips(items);
