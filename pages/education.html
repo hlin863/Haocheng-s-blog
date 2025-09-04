@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Éducation</title>
+  <link rel="stylesheet" href="/style/style.css" />
+  <style>
+    /* Shared bits */
+    .exp-wrap { max-width: 980px; margin: 0 auto; padding: 1rem; }
+    .exp-header { display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+    .view-toggle { display:flex; gap:.5rem; }
+    .view-toggle button{ border:1px solid #e5e7eb; background:#fff; padding:.45rem .8rem; border-radius:9999px;
+      font-weight:600; cursor:pointer; transition:all .15s ease; }
+    .view-toggle button.active{ background:#111827; color:#fff; border-color:#111827; }
+
+    .timeline-list{ position:relative; margin:1.25rem 0 2rem; padding-left:1.25rem; border-left:2px solid #e5e7eb; }
+    .tl-item{ position:relative; margin:1rem 0 1.4rem; padding-left:1rem; }
+    .tl-item::before{ content:""; position:absolute; left:-7px; top:.45rem; width:12px; height:12px; border-radius:999px; background:#111827; box-shadow:0 0 0 4px #fff; }
+    .tl-heading{ font-weight:700; }
+    .tl-meta{ font-size:.9rem; color:#6b7280; margin-top:.15rem; }
+    .tl-notes{ margin-top:.35rem; line-height:1.4; }
+
+    .chips{ list-style:none; padding:0; display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.75rem; }
+    .chips li{ padding:.35rem .6rem; border:1px solid #e5e7eb; border-radius:9999px; background:#fff; }
+
+    .gantt{ margin-top:1rem; }
+    .gantt-legend{ display:flex; align-items:center; gap:1rem; font-size:.95rem; color:#374151; margin-bottom:.5rem; }
+    .gantt-legend .dot{ width:10px; height:10px; border-radius:9999px; display:inline-block; }
+    .key-degree{ background:#2563eb; }  /* blue */
+    .key-current{ background:#10b981; } /* green */
+
+    .gantt-scroller{ overflow:auto; border:1px solid #e5e7eb; border-radius:12px; background:#fafafa; padding:1rem; max-height:520px; }
+    svg text{ font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial; fill:#374151; font-size:12.5px; }
+    .axis-year { fill:#9CA3AF; font-size:11px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Mon Blog</h1>
+    <nav>
+      <a href="/index.html">Accueil</a>
+      <a href="/pages/daily_blog.html">Mon blog quotidien</a>
+      <a href="/pages/experience.html">Expérience</a>
+      <a href="/pages/education.html">Éducation</a>
+      <a href="/pages/about.html">À propos</a>
+      <a href="/pages/contact.html">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="exp-wrap">
+      <div class="exp-header">
+        <h2>Éducation</h2>
+        <div class="view-toggle" role="tablist" aria-label="Type d'affichage">
+          <button id="btn-list" class="active" role="tab" aria-selected="true">Liste</button>
+          <button id="btn-gantt" role="tab" aria-selected="false">Gantt</button>
+        </div>
+      </div>
+
+      <!-- List -->
+      <div id="timeline" class="timeline-list"></div>
+
+      <!-- Gantt -->
+      <div id="gantt" class="gantt" hidden>
+        <div class="gantt-legend">
+          <span class="dot key-degree" title="Diplôme"></span><b>Diplôme</b>
+          <span class="dot key-current" title="En cours"></span><b>En cours</b>
+        </div>
+        <div class="gantt-scroller">
+          <svg id="ganttSvg" width="100%" height="100" role="img" aria-label="Gantt éducatif"></svg>
+        </div>
+      </div>
+
+      <h3>Établissements</h3>
+      <ul id="businesses" class="chips"></ul>
+    </section>
+  </main>
+
+  <script>
+    const fmtRange = (s,e)=>`${new Date(s).getFullYear()} - ${e ? new Date(e).getFullYear() : "Présent"}`;
+
+    // view toggle
+    const btnList = document.getElementById('btn-list');
+    const btnGantt = document.getElementById('btn-gantt');
+    const elList  = document.getElementById('timeline');
+    const elGantt = document.getElementById('gantt');
+    btnList.addEventListener('click', ()=>{ btnList.classList.add('active'); btnGantt.classList.remove('active'); elList.hidden=false; elGantt.hidden=true; });
+    btnGantt.addEventListener('click', ()=>{ btnGantt.classList.add('active'); btnList.classList.remove('active'); elList.hidden=true; elGantt.hidden=false; });
+
+    (async function init(){
+      const items = await fetch('/data/education.json').then(r=>r.json());
+      items.sort((a,b)=> new Date(b.start) - new Date(a.start));
+      renderList(items);
+      renderChips(items);
+      renderGantt(items);
+    })();
+
+    function renderList(items){
+      const wrap = document.getElementById('timeline');
+      wrap.innerHTML = '';
+      items.forEach(x=>{
+        const d = document.createElement('div');
+        d.className = 'tl-item';
+        d.innerHTML = `
+          <div class="tl-heading">${x.org} — ${x.role}</div>
+          <div class="tl-meta">${fmtRange(x.start, x.end)}</div>
+          ${x.notes ? `<div class="tl-notes">${x.notes}</div>` : ""}`;
+        wrap.appendChild(d);
+      });
+    }
+
+    function renderChips(items){
+      const set = new Set(items.map(i=>i.org));
+      const ul = document.getElementById('businesses');
+      ul.innerHTML = '';
+      [...set].forEach(n => { const li = document.createElement('li'); li.textContent = n; ul.appendChild(li); });
+    }
+
+    // colour helpers (degree vs current)
+    function getEduType(it){ return !it.end ? 'current' : 'degree'; }
+    function colourFor(type){ return type === 'current' ? '#10b981' : '#2563eb'; }
+
+    function renderGantt(items){
+      const measureText = (txt, font='12px system-ui') => {
+        const c = document.createElement('canvas'); const ctx = c.getContext('2d');
+        ctx.font = font; return ctx.measureText(txt).width;
+      };
+      const parseDate = d => d ? new Date(d) : new Date();
+      const getYearStart = y => new Date(`${y}-01-01T00:00:00`);
+
+      // dynamic left label width
+      const labels = items.map(it => `${it.org} — ${it.role}`);
+      const leftPad = Math.max(160, 24 + Math.ceil(Math.max(...labels.map(measureText))));
+
+      // range
+      const starts = items.map(i=>parseDate(i.start));
+      const ends   = items.map(i=>parseDate(i.end));
+      const minYear = new Date(Math.min(...starts)).getFullYear();
+      const maxYear = Math.max(new Date(Math.max(...ends)).getFullYear(), new Date().getFullYear());
+
+      // size
+      const rowH = 36, rowGap = 12, topPad = 40, rightPad = 24, bottomPad = 44;
+      const yearsSpan = (maxYear - minYear + 1);
+      const container = document.querySelector('.gantt-scroller');
+      const containerW = container.clientWidth || 980;
+      const pxPerYear = Math.max(90, Math.min(160, Math.floor((containerW - 200) / yearsSpan)));
+      const svgW = Math.max(containerW + leftPad, yearsSpan * pxPerYear + leftPad + rightPad);
+      const svgH = topPad + items.length*(rowH+rowGap) + bottomPad;
+
+      const svg = document.getElementById('ganttSvg');
+      svg.setAttribute('viewBox', `0 0 ${svgW} ${svgH}`);
+      svg.setAttribute('height', svgH);
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+      const xScale = (date)=>{
+        const t0 = getYearStart(minYear).getTime();
+        const t1 = getYearStart(maxYear+1).getTime();
+        const t  = new Date(date).getTime();
+        return leftPad + (t - t0) / (t1 - t0) * (svgW - leftPad - rightPad);
+      };
+
+      // grid + years
+      for(let y=minYear; y<=maxYear; y++){
+        const x = xScale(getYearStart(y));
+        const grid = document.createElementNS('http://www.w3.org/2000/svg','line');
+        grid.setAttribute('x1', x); grid.setAttribute('x2', x);
+        grid.setAttribute('y1', topPad-8); grid.setAttribute('y2', svgH-bottomPad+6);
+        grid.setAttribute('stroke', '#E5E7EB'); grid.setAttribute('stroke-width', 1);
+        svg.appendChild(grid);
+
+        const tx = document.createElementNS('http://www.w3.org/2000/svg','text');
+        tx.setAttribute('class','axis-year');
+        tx.setAttribute('x', x+4); tx.setAttribute('y', topPad-16);
+        tx.textContent = y;
+        svg.appendChild(tx);
+      }
+
+      // rows + bars
+      items.forEach((it, idx)=>{
+        const y = topPad + idx*(rowH+rowGap);
+
+        const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+        lbl.setAttribute('x', 8);
+        lbl.setAttribute('y', y + rowH*0.7);
+        lbl.textContent = `${it.org} — ${it.role}`;
+        svg.appendChild(lbl);
+
+        const startX = xScale(parseDate(it.start));
+        const endX   = xScale(parseDate(it.end || new Date()));
+        const w      = Math.max(8, endX - startX);
+
+        const bar = document.createElementNS('http://www.w3.org/2000/svg','rect');
+        bar.setAttribute('x', startX);
+        bar.setAttribute('y', y + 6);
+        bar.setAttribute('width', w);
+        bar.setAttribute('height', rowH - 12);
+        bar.setAttribute('rx', 8); bar.setAttribute('ry', 8);
+        bar.setAttribute('fill', colourFor(getEduType(it)));
+        const tip = document.createElementNS('http://www.w3.org/2000/svg','title');
+        tip.textContent = `${it.org} — ${it.role} | ${fmtRange(it.start, it.end)}${it.notes ? ' | ' + it.notes : ''}`;
+        bar.appendChild(tip);
+        svg.appendChild(bar);
+      });
+    }
+  </script>
+</body>
+</html>

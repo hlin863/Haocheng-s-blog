@@ -1,0 +1,18 @@
+[
+  {
+    "id": "meng",
+    "org": "UCL",
+    "role": "MEng Computer Science",
+    "start": "2019-09-23",
+    "end": "2023-06-06",
+    "notes": "Grade: First Class Honours"
+  },
+  {
+    "id": "msc",
+    "org": "UCL",
+    "role": "MSc AI for Sustainable Development",
+    "start": "2023-09-24",
+    "end": "2024-09-24",
+    "notes": "Grade: Distinction"
+  }
+]
