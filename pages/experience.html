@@ -164,10 +164,10 @@
 
     <script>
     const LOGOS = {
-        "Google": "/images/logos/google.svg",
-        "Microsoft": "/images/logos/microsoft.svg",
-        "Capgemini": "/images/logos/capgemini.svg",
-        "UCL": "/images/logos/ucl.svg"
+        "Google": "../images/logos/google.svg",
+        "Microsoft": "../images/logos/microsoft.svg",
+        "Capgemini": "../images/logos/capgemini.svg",
+        "UCL": "../images/logos/ucl.svg"
     };
 
     // Utility: initials fallback if a logo is missing
@@ -516,7 +516,7 @@
 
     // --- load & render ---
     (async function init(){
-        const res = await fetch('/data/experiences.json');
+        const res = await fetch('../data/experiences.json');
         const items = (await res.json()).sort((a,b)=> new Date(b.start) - new Date(a.start));
 
         renderHonours(items);
