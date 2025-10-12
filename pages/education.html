@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Éducation</title>
-  <link rel="stylesheet" href="/style/style.css" />
+  <link rel="stylesheet" href="../style/style.css" />
   <style>
     /* Shared bits */
     .exp-wrap { max-width: 980px; margin: 0 auto; padding: 1rem; }
@@ -39,12 +39,12 @@
   <header>
     <h1>Mon Blog</h1>
     <nav>
-      <a href="/index.html">Accueil</a>
-      <a href="/pages/daily_blog.html">Mon blog quotidien</a>
-      <a href="/pages/experience.html">Expérience</a>
-      <a href="/pages/education.html">Éducation</a>
-      <a href="/pages/about.html">À propos</a>
-      <a href="/pages/contact.html">Contact</a>
+      <a href="../index.html">Accueil</a>
+      <a href="./daily_blog.html">Mon blog quotidien</a>
+      <a href="./experience.html">Expérience</a>
+      <a href="./education.html">Éducation</a>
+      <a href="./about.html">À propos</a>
+      <a href="./contact.html">Contact</a>
     </nav>
   </header>
 
@@ -89,7 +89,7 @@
     btnGantt.addEventListener('click', ()=>{ btnGantt.classList.add('active'); btnList.classList.remove('active'); elList.hidden=true; elGantt.hidden=false; });
 
     (async function init(){
-      const items = await fetch('/data/education.json').then(r=>r.json());
+      const items = await fetch('../data/education.json').then(r=>r.json());
       items.sort((a,b)=> new Date(b.start) - new Date(a.start));
       renderList(items);
       renderChips(items);
