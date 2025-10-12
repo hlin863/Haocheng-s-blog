@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Expérience</title>
-    <link rel="stylesheet" href="/style/style.css" />
+    <link rel="stylesheet" href="../style/style.css" />
     <style>
         #timeline { position:relative; margin:1rem 0 2rem; padding-left:1rem; border-left:2px solid #e5e7eb; }
         .timeline-item { position:relative; margin:1rem 0 1.5rem; padding-left:1rem; }
@@ -479,7 +479,7 @@
     }
 
     async function loadTimeline() {
-        const res = await fetch("/data/experiences.json");
+        const res = await fetch("../data/experiences.json");
         const items = (await res.json())
         .sort((a,b)=> new Date(b.start) - new Date(a.start));
 
