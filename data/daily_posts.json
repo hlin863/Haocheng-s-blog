@@ -6,5 +6,13 @@
         "tags": ["poésie", "réflexion", "soirée"],
         "image": "../images/Daily/sunset-desk.jpg",
         "imageAlt": "Un bureau ancien éclairé par un coucher de soleil"
+    },
+    {
+        "title": "🌍 Réflexion du jour : La dette de durabilité dans la gouvernance de l’IA",
+        "date": "2025-10-14",
+        "content": "Le concept de dette de durabilité dans la gouvernance de l’intelligence artificielle décrit les conséquences à long terme qu’une organisation accumule lorsqu’elle privilégie la performance et l’efficacité immédiates au détriment des pratiques responsables et durables. Tout comme la *dette technique*, elle se manifeste lorsque les choix à court terme dans le développement ou la gestion de l’IA négligent les impacts éthiques, sociaux et environnementaux.\n\nAvec le temps, cette dette se traduit par des risques réglementaires accrus, une perte de confiance des parties prenantes et des coûts supplémentaires pour adapter les systèmes aux exigences de durabilité. En d’autres termes, ignorer la durabilité aujourd’hui, c’est s’endetter pour demain.\n\n💡 *Penser durable, c’est investir dans l’avenir.*",
+        "tags": ["IA", "durabilité", "éthique", "gouvernance"],
+        "image": "../images/Daily/sustainability-debt.png",
+        "imageAlt": "Illustration représentant la balance entre performance et durabilité dans la gouvernance de l’IA"
     }
 ]
